@@ -1,15 +1,27 @@
 <!DOCTYPE html>
 <html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Maqueta</title><style>html,body{margin:0;height:100%}iframe{border:0;width:100%;height:100%;display:block}
-.volver{position:fixed;left:.7rem;top:2.2rem;z-index:99;background:rgba(23,23,26,.85);color:#fff;font:600 .85rem/1 system-ui;padding:.6rem .9rem;border-radius:2rem;text-decoration:none;backdrop-filter:blur(6px)}</style></head>
+<title>Maqueta</title>
+<style>html,body{margin:0;height:100%;background:#17171a;font-family:system-ui,sans-serif}
+iframe{border:0;width:100%;height:calc(100% - 3.1rem);display:block;background:#fff}
+.barra{height:3.1rem;display:flex;align-items:center;gap:.5rem;padding:0 .7rem;color:#fff}
+.barra a,.barra button{background:rgba(255,255,255,.14);color:#fff;border:0;font:600 .85rem/1 system-ui;padding:.6rem .85rem;border-radius:2rem;text-decoration:none;cursor:pointer}
+.barra .n{flex:1;text-align:center;font-size:.85rem;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.barra button:disabled{opacity:.35}</style></head>
 <body>
-<a class="volver" href="index.html">← Panel</a>
+<div class="barra"><a href="index.html">← Panel</a><button id="prev" type="button">‹</button><span class="n" id="nom"></span><button id="next" type="button">›</button></div>
 <iframe id="m" title="Maqueta"></iframe>
 <script>
-// La maqueta se guarda al pulsar «Ver» y se pinta aquí: así funciona en el móvil,
-// donde abrir una ventana nueva y escribir en ella lo bloquean los navegadores.
-const doc = sessionStorage.getItem("maqueta");
-if (!doc) location.replace("index.html");
-else document.getElementById("m").srcdoc = doc;
+// Una maqueta suelta, o varias de un grupo que se pasan con ‹ ›.
+const una = sessionStorage.getItem("maqueta");
+const varias = JSON.parse(sessionStorage.getItem("maquetas") || "null");
+const lista = varias || (una ? [{nombre: "", doc: una}] : null);
+if (!lista) location.replace("index.html");
+let i = 0;
+const m = document.getElementById("m"), nom = document.getElementById("nom");
+function pinta(){ m.srcdoc = lista[i].doc; nom.textContent = (lista[i].nombre || "") + (lista.length > 1 ? `  ${i + 1}/${lista.length}` : "");
+  document.getElementById("prev").disabled = i === 0; document.getElementById("next").disabled = i === lista.length - 1; }
+document.getElementById("prev").onclick = () => { if (i > 0){ i--; pinta(); } };
+document.getElementById("next").onclick = () => { if (i < lista.length - 1){ i++; pinta(); } };
+pinta();
 </script>
 </body></html>

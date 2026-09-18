@@ -50,8 +50,9 @@ $("form").onsubmit = async e => {
       }
     }
     const orden = {sin: 0, red: 1, propia: 2};
+    NEGOCIOS.forEach(x => x.puntos = oportunidad(x));
     NEGOCIOS.sort((a, b) => orden[a.clase] - orden[b.clase] || b.resenas - a.resenas);
-    pinta();
+    GRUPOS_VISTA = null; pinta();
   } catch(err){ $("error").textContent = err.message; $("error").hidden = false; }
   $("buscar").disabled = false; $("buscar").textContent = "Buscar";
 };
@@ -138,3 +139,78 @@ function ayudaMolde(){
   $("tituloPuntos").placeholder = "Título de esa sección";
 }
 $("molde").onchange = ayudaMolde;
+
+
+/* ══════════ BARRIDO: descubre qué hay en la zona, lo agrupa y propone maquetas ══════════ */
+let GRUPOS_VISTA = null;
+
+$("barrer").onclick = async () => {
+  if (!clave()) return $("dlgClave").showModal();
+  const zona = $("zona").value.trim();
+  if (!zona) return $("zona").focus();
+  $("error").hidden = true; $("barrer").disabled = true; $("buscar").disabled = true;
+  const vistos = new Set(); NEGOCIOS = [];
+  try {
+    for (let i = 0; i < CATALOGO.length; i++){
+      const [tipo, molde, grupo] = CATALOGO[i];
+      $("barrer").textContent = `Barriendo… ${i + 1}/${CATALOGO.length}`;
+      let d;
+      try { d = await pagina(`${tipo} en ${zona}`); } catch(e){ continue; }
+      for (const s of d.places || []){
+        if (vistos.has(s.id) || s.businessStatus === "CLOSED_PERMANENTLY") continue;
+        vistos.add(s.id);
+        const web = s.websiteUri || "";
+        const n = {id: s.id, tipo, molde, grupo, nombre: (s.displayName || {}).text || "",
+          direccion: s.formattedAddress || "", telefono: s.nationalPhoneNumber || "", web, clase: claseWeb(web),
+          valoracion: s.rating || "", resenas: s.userRatingCount || 0, maps: s.googleMapsUri || "",
+          horario: ((s.regularOpeningHours || {}).weekdayDescriptions) || []};
+        n.puntos = oportunidad(n);
+        NEGOCIOS.push(n);
+      }
+      await espera(250);
+    }
+    NEGOCIOS.sort((a, b) => b.puntos - a.puntos);
+    GRUPOS_VISTA = true; pintaGrupos();
+  } catch(err){ $("error").textContent = err.message; $("error").hidden = false; }
+  $("barrer").disabled = false; $("buscar").disabled = false; $("barrer").textContent = "Barrer la zona";
+};
+
+function pintaGrupos(){
+  $("resumen").hidden = $("filtros").hidden = false; $("vacio").hidden = true;
+  const n = c => NEGOCIOS.filter(x => x.clase === c).length;
+  $("nSin").textContent = n("sin"); $("nRed").textContent = n("red"); $("nProp").textContent = n("propia");
+  const html = GRUPOS.map(g => {
+    const dentro = NEGOCIOS.filter(x => x.grupo === g);
+    if (!dentro.length) return "";
+    const sinWeb = dentro.filter(x => x.clase !== "propia");
+    const tipos = [...new Set(dentro.map(x => x.tipo))];
+    const mejores = sinWeb.slice(0, 3);
+    return `<div class="grupo">
+      <div class="gcab"><div><b>${g}</b><div class="mini">${dentro.length} negocios · ${tipos.length} tipos · <b style="color:var(--rojo)">${sinWeb.length}</b> sin web propia</div></div>
+        <button class="ghost" data-grupo="${g}" type="button">Maquetas</button></div>
+      <div class="mini" style="margin:.5rem 0 .7rem">${tipos.join(" · ")}</div>
+      ${mejores.map(x => `<div class="fila"><div><b>${x.nombre}</b><div class="mini">${x.tipo} · ${x.resenas} reseñas${x.valoracion ? " · " + x.valoracion + " ★" : ""}</div></div>
+        <div style="display:flex;gap:.4rem;align-items:center"><span class="tag ${x.clase}">${x.puntos}</span>
+        <button class="ghost" data-maq="${x.id}" type="button">Maqueta</button></div></div>`).join("")}
+      ${sinWeb.length > 3 ? `<div class="mini" style="margin-top:.5rem">y ${sinWeb.length - 3} más — pulsa Maquetas</div>` : ""}
+    </div>`;
+  }).join("");
+  $("lista").innerHTML = html || `<p class="mini">La zona no ha dado resultados.</p>`;
+  document.querySelectorAll("[data-maq]").forEach(b => b.onclick = () => abrirMaqueta(b.dataset.maq));
+  document.querySelectorAll("[data-grupo]").forEach(b => b.onclick = () => maquetasDe(b.dataset.grupo));
+}
+
+/* varias maquetas de golpe: se guardan y se pasan con ‹ › en la propia página */
+function maquetasDe(grupo){
+  const lista = NEGOCIOS.filter(x => x.grupo === grupo && x.clase !== "propia").slice(0, 8);
+  if (!lista.length) return;
+  const base = location.origin + location.pathname.replace(/[^/]*$/, "");
+  const wa = localStorage.getItem("wa") || "";
+  const docs = lista.map(n => ({nombre: n.nombre,
+    doc: MOLDES[n.molde].fn(n, {color: COLORES[0], foto: FOTO_TIPO[n.tipo] || "generico",
+      detalle: "det_" + (FOTO_TIPO[n.tipo] === "panaderia" ? "panaderia" : FOTO_TIPO[n.tipo] === "bar" ? "bar" : FOTO_TIPO[n.tipo] === "restaurante" ? "restaurante" : FOTO_TIPO[n.tipo] === "taller" ? "taller" : FOTO_TIPO[n.tipo] === "peluqueria" ? "peluqueria" : "tienda"),
+      lema: "", whatsapp: wa, molde: n.molde, tituloMotivos: "", motivos: []}).replace(/src="img\//g, 'src="' + base + 'img/')}));
+  sessionStorage.setItem("maquetas", JSON.stringify(docs));
+  sessionStorage.removeItem("maqueta");
+  location.href = "ver.html";
+}
