@@ -8,7 +8,8 @@
 <style>
 :root{--tinta:#17171a;--gris:#70707a;--linea:#e4e2dd;--papel:#fbfaf7;--verde:#1f7a4d;--rojo:#b3402b}
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:Manrope,system-ui,sans-serif;background:var(--papel);color:var(--tinta);line-height:1.5;padding-bottom:3rem}
+body{font-family:Manrope,system-ui,sans-serif;background:var(--papel);color:var(--tinta);line-height:1.5;padding-bottom:3rem;overflow-x:clip}
+*{min-width:0}
 header{display:flex;align-items:baseline;gap:.8rem;padding:1.1rem 1.4rem;border-bottom:1px solid var(--linea);position:sticky;top:0;background:var(--papel);z-index:5}
 header h1{font-size:1.1rem;font-weight:700}
 header span{color:var(--gris);font-size:.85rem}
@@ -19,11 +20,13 @@ input,select{padding:.8rem .9rem;border:1px solid var(--linea);border-radius:10p
 button{padding:.8rem 1.3rem;border:0;border-radius:10px;background:var(--tinta);color:#fff;font:inherit;font-weight:700;cursor:pointer}
 button.ghost{background:#fff;color:var(--tinta);border:1px solid var(--linea);font-weight:500}
 button:disabled{opacity:.5}
-.resumen{display:flex;gap:1.6rem;padding:1rem 1.4rem;border-bottom:1px solid var(--linea);flex-wrap:wrap;align-items:center}
+.resumen{display:grid;grid-template-columns:repeat(3,1fr) auto;gap:.8rem;padding:1rem 1.4rem;border-bottom:1px solid var(--linea);align-items:center}
+@media (max-width:520px){.resumen{grid-template-columns:repeat(3,1fr);gap:.6rem}.resumen button{grid-column:1/-1;width:100%}}
 .resumen b{font-size:1.5rem;display:block;line-height:1.1}
 .resumen div span{font-size:.85rem;color:var(--gris)}
 .filtros{display:flex;gap:.5rem;padding:1rem 1.4rem 0;flex-wrap:wrap}
-.pill{padding:.45rem .9rem;border:1px solid var(--linea);border-radius:2rem;background:#fff;color:var(--tinta);font-weight:500;font-size:.9rem}
+.pill{padding:.45rem .8rem;border:1px solid var(--linea);border-radius:2rem;background:#fff;color:var(--tinta);font-weight:500;font-size:.85rem;white-space:nowrap}
+@media (max-width:420px){.pill{font-size:.8rem;padding:.4rem .7rem}}
 .pill.on{background:var(--tinta);color:#fff}
 .lista{padding:1rem 1.4rem;display:grid;gap:.8rem}
 .ficha{background:#fff;border:1px solid var(--linea);border-radius:14px;padding:1rem 1.1rem}
@@ -37,15 +40,18 @@ button:disabled{opacity:.5}
 .acciones .princ{background:var(--tinta);color:#fff;border-color:var(--tinta);font-weight:700}
 .vacio{padding:2.5rem 1.4rem;color:var(--gris)}
 .error{margin:1rem 1.4rem;padding:.9rem 1rem;background:#fdeee9;color:var(--rojo);border-radius:10px;font-size:.9rem}
-dialog{border:0;border-radius:16px;padding:0;max-width:440px;width:92vw}
+dialog{border:0;border-radius:16px;padding:0;max-width:440px;width:92vw;max-height:88vh;overflow:auto}
+@media (max-width:620px){dialog{width:100vw;max-width:none;max-height:92vh;border-radius:16px 16px 0 0;margin:auto auto 0}dialog::backdrop{background:rgba(20,20,20,.6)}}
 dialog::backdrop{background:rgba(20,20,20,.5)}
-.modal{padding:1.4rem}
+.modal{padding:1.2rem 1.1rem 1.4rem}
+.pie{position:sticky;bottom:-1.4rem;background:#fff;padding-top:.8rem;margin:0 -1.1rem -1.4rem;padding:.9rem 1.1rem 1.1rem;border-top:1px solid var(--linea)}
 .modal h3{font-size:1.15rem}
 .campos{display:grid;gap:.9rem;margin:1.1rem 0}
 .colores{display:flex;gap:.5rem;flex-wrap:wrap}
 .colores span{width:34px;height:34px;border-radius:50%;cursor:pointer;border:3px solid transparent}
 .colores span.on{border-color:var(--tinta)}
 .pie{display:flex;gap:.6rem;justify-content:flex-end;flex-wrap:wrap}
+@media (max-width:520px){.pie button{flex:1;min-width:8rem}}
 .nota{padding:1rem 1.4rem;color:var(--gris);font-size:.82rem;border-top:1px solid var(--linea);margin-top:1rem}
 </style>
 </head>
@@ -88,7 +94,7 @@ dialog::backdrop{background:rgba(20,20,20,.5)}
 
 <dialog id="dlgMaq"><div class="modal">
   <h3 id="mqNombre"></h3><p class="mini" id="mqDir"></p>
-  <div class="campos">
+  <div class="campos" style="gap:.7rem">
     <label>Frase de la portada<input id="lema" placeholder="El pan de cada día, desde 1978"></label>
     <label>Molde<select id="molde">
       <option value="cercano">Cercano · bar, panadería, barrio</option>

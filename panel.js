@@ -112,10 +112,11 @@ function opciones(){
 }
 const html = (n, o) => MOLDES[o.molde].fn(n, o);
 $("ver").onclick = () => {
-  const doc = html(actual, opciones()); $("dlgMaq").close();
-  const w = window.open("", "_blank"); if (!w) return alert("El navegador ha bloqueado la ventana. Usa Descargar.");
-  const abs = doc.replace('src="img/', 'src="' + location.origin + location.pathname.replace(/[^/]*$/, "") + 'img/');
-  w.document.write(abs); w.document.close();
+  const o = opciones(); localStorage.setItem("wa", o.whatsapp || "");
+  const base = location.origin + location.pathname.replace(/[^/]*$/, "");
+  const doc = html(actual, o).replace(/src="img\//g, 'src="' + base + 'img/');
+  sessionStorage.setItem("maqueta", doc); $("dlgMaq").close();
+  location.href = "ver.html";   // misma pestaña: el móvil bloquea las ventanas nuevas
 };
 $("descargar").onclick = () => {
   const doc = html(actual, opciones()); $("dlgMaq").close();

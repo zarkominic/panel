@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Maqueta</title><style>html,body{margin:0;height:100%}iframe{border:0;width:100%;height:100%;display:block}
+.volver{position:fixed;left:.7rem;top:2.2rem;z-index:99;background:rgba(23,23,26,.85);color:#fff;font:600 .85rem/1 system-ui;padding:.6rem .9rem;border-radius:2rem;text-decoration:none;backdrop-filter:blur(6px)}</style></head>
+<body>
+<a class="volver" href="index.html">← Panel</a>
+<iframe id="m" title="Maqueta"></iframe>
+<script>
+// La maqueta se guarda al pulsar «Ver» y se pinta aquí: así funciona en el móvil,
+// donde abrir una ventana nueva y escribir en ella lo bloquean los navegadores.
+const doc = sessionStorage.getItem("maqueta");
+if (!doc) location.replace("index.html");
+else document.getElementById("m").srcdoc = doc;
+</script>
+</body></html>

@@ -9,6 +9,10 @@ uno: teléfono que llama al pulsarlo, enlace a Maps, y un botón **Maqueta** que
 arma su web —nombre, dirección, horario de Google y el teléfono en grande— y la
 abre en otra pestaña para enseñársela al dueño ahí mismo.
 
+**En el móvil**: el diálogo sube desde abajo a pantalla completa, y la maqueta se
+abre en la misma pestaña (`ver.html`), porque los móviles bloquean las ventanas
+nuevas. Un botón «← Panel» arriba vuelve. Medido a 390 px: no desborda.
+
 **La clave de Google no está aquí**. La escribes una vez en el propio panel y se
 queda en tu navegador. En Google Cloud: habilita *Places API (New)*, crea una
 clave y restríngela a esa API y a `zarkominic.github.io`.
