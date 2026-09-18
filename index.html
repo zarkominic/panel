@@ -15,7 +15,7 @@ header span{color:var(--gris);font-size:.85rem}
 form.buscador{display:grid;gap:.8rem;padding:1.2rem 1.4rem;border-bottom:1px solid var(--linea);background:#fff}
 @media (min-width:860px){form.buscador{grid-template-columns:1.2fr 2fr auto;align-items:end}}
 label{display:grid;gap:.3rem;font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gris)}
-input{padding:.8rem .9rem;border:1px solid var(--linea);border-radius:10px;font:inherit;background:#fff;width:100%}
+input,select{padding:.8rem .9rem;border:1px solid var(--linea);border-radius:10px;font:inherit;background:#fff;width:100%}
 button{padding:.8rem 1.3rem;border:0;border-radius:10px;background:var(--tinta);color:#fff;font:inherit;font-weight:700;cursor:pointer}
 button.ghost{background:#fff;color:var(--tinta);border:1px solid var(--linea);font-weight:500}
 button:disabled{opacity:.5}
@@ -90,6 +90,18 @@ dialog::backdrop{background:rgba(20,20,20,.5)}
   <h3 id="mqNombre"></h3><p class="mini" id="mqDir"></p>
   <div class="campos">
     <label>Frase de la portada<input id="lema" placeholder="El pan de cada día, desde 1978"></label>
+    <label>Foto de portada<select id="foto">
+      <option value="panaderia">Panadería</option><option value="bar">Bar</option><option value="peluqueria">Peluquería</option>
+      <option value="restaurante">Restaurante</option><option value="tienda">Tienda</option><option value="ferreteria">Ferretería</option>
+      <option value="taller">Taller</option><option value="generico">Genérica</option></select></label>
+    <label>WhatsApp (opcional, con prefijo)<input id="whatsapp" placeholder="34600000000"></label>
+    <details><summary class="mini" style="cursor:pointer;letter-spacing:.14em;text-transform:uppercase">Tres motivos (opcional)</summary>
+      <div style="display:grid;gap:.6rem;margin-top:.6rem">
+        <input id="tituloPuntos" placeholder="Título · por ejemplo: Por qué venir">
+        <input id="p1" placeholder="Título | explicación">
+        <input id="p2" placeholder="Título | explicación">
+        <input id="p3" placeholder="Título | explicación">
+      </div></details>
     <div><div class="mini" style="letter-spacing:.14em;text-transform:uppercase;margin-bottom:.4rem">Color</div><div class="colores" id="colores"></div></div>
   </div>
   <div class="pie"><button class="ghost" type="button" data-cerrar>Cancelar</button><button class="ghost" type="button" id="descargar">Descargar</button><button type="button" id="ver">Ver maqueta</button></div>
