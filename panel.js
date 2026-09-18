@@ -116,16 +116,16 @@ function html(n, o){
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;500;700;800&display=swap" rel="stylesheet">
 <style>:root{--a:${o.color};--t:#17171a;--g:#6f6f74;--p:#fbfaf7;--linea:rgba(23,23,26,.1)}
 *{box-sizing:border-box;margin:0;padding:0}html{scroll-behavior:smooth}
-body{font-family:Manrope,system-ui,sans-serif;background:var(--p);color:var(--t);line-height:1.55;font-size:clamp(1.05rem,.4vw + .95rem,1.2rem);padding-bottom:4.5rem}
+body{font-family:Manrope,system-ui,sans-serif;background:var(--p);color:var(--t);line-height:1.55;font-size:clamp(1.05rem,.4vw + .95rem,1.2rem);padding-bottom:4.5rem;overflow-x:clip}
 a{color:inherit}
 .barra{position:fixed;top:0;left:0;right:0;z-index:9;display:flex;justify-content:space-between;align-items:center;padding:.9rem 6vw;color:#fff;font-weight:700;background:linear-gradient(180deg,rgba(0,0,0,.45),transparent)}
 .barra .n{font-size:1rem;letter-spacing:.02em}.barra a{font-size:.85rem;font-weight:500;opacity:.9;margin-left:1rem;text-decoration:none}
-.hero{position:relative;min-height:92vh;display:flex;flex-direction:column;justify-content:flex-end;padding:0 6vw 7vh;color:#fff;overflow:hidden}
+.hero{position:relative;min-height:88vh;display:flex;flex-direction:column;justify-content:flex-end;padding:0 6vw 7vh;color:#fff;overflow:hidden}
 .hero img.fondo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .hero .velo{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.35) 0%,rgba(0,0,0,.15) 35%,rgba(0,0,0,.82) 100%)}
 .hero .txt{position:relative}
 .ante{letter-spacing:.2em;text-transform:uppercase;font-size:.78rem;opacity:.85;margin-bottom:.8rem}
-h1{font-size:clamp(2.4rem,9vw,5rem);font-weight:800;line-height:1.03;letter-spacing:-.025em}
+h1{font-size:clamp(2rem,8vw,4.6rem);font-weight:800;line-height:1.05;letter-spacing:-.025em;overflow-wrap:break-word;hyphens:auto}
 .lema{margin-top:1rem;font-size:clamp(1.1rem,3.6vw,1.6rem);font-weight:300;opacity:.95;max-width:28ch}
 .val{display:inline-flex;align-items:center;gap:.5rem;margin-top:1.2rem;background:rgba(255,255,255,.14);backdrop-filter:blur(6px);padding:.45rem .9rem;border-radius:2rem;font-size:.9rem}
 .val b{font-weight:800}
@@ -157,7 +157,7 @@ footer{padding:2.6rem 6vw;color:var(--g);font-size:.85rem;border-top:1px solid v
   <img class="fondo" src="img/${o.foto}.jpg" alt="">
   <div class="velo"></div>
   <div class="txt">
-    <p class="ante">${n.tipo ? n.tipo[0].toUpperCase() + n.tipo.slice(1) : ""}${n.direccion ? " · " + n.direccion.split(",")[1] || "" : ""}</p>
+    <p class="ante">${[n.tipo ? n.tipo[0].toUpperCase() + n.tipo.slice(1) : "", (n.direccion.split(",")[2] || "").trim().replace(/^\d{5}\s*/, "")].filter(Boolean).join(" · ")}</p>
     <h1>${n.nombre}</h1>
     ${o.lema ? `<p class="lema">${o.lema}</p>` : ""}
     ${n.valoracion ? `<div class="val"><b>${n.valoracion}</b> <span>${estrellas}</span> <span style="opacity:.8">· ${n.resenas} reseñas en Google</span></div>` : ""}
