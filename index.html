@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Panel — radar y maquetas</title>
+<meta name="robots" content="noindex">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--tinta:#17171a;--gris:#70707a;--linea:#e4e2dd;--papel:#fbfaf7;--verde:#1f7a4d;--rojo:#b3402b}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Manrope,system-ui,sans-serif;background:var(--papel);color:var(--tinta);line-height:1.5;padding-bottom:3rem}
+header{display:flex;align-items:baseline;gap:.8rem;padding:1.1rem 1.4rem;border-bottom:1px solid var(--linea);position:sticky;top:0;background:var(--papel);z-index:5}
+header h1{font-size:1.1rem;font-weight:700}
+header span{color:var(--gris);font-size:.85rem}
+form.buscador{display:grid;gap:.8rem;padding:1.2rem 1.4rem;border-bottom:1px solid var(--linea);background:#fff}
+@media (min-width:860px){form.buscador{grid-template-columns:1.2fr 2fr auto;align-items:end}}
+label{display:grid;gap:.3rem;font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gris)}
+input{padding:.8rem .9rem;border:1px solid var(--linea);border-radius:10px;font:inherit;background:#fff;width:100%}
+button{padding:.8rem 1.3rem;border:0;border-radius:10px;background:var(--tinta);color:#fff;font:inherit;font-weight:700;cursor:pointer}
+button.ghost{background:#fff;color:var(--tinta);border:1px solid var(--linea);font-weight:500}
+button:disabled{opacity:.5}
+.resumen{display:flex;gap:1.6rem;padding:1rem 1.4rem;border-bottom:1px solid var(--linea);flex-wrap:wrap;align-items:center}
+.resumen b{font-size:1.5rem;display:block;line-height:1.1}
+.resumen div span{font-size:.85rem;color:var(--gris)}
+.filtros{display:flex;gap:.5rem;padding:1rem 1.4rem 0;flex-wrap:wrap}
+.pill{padding:.45rem .9rem;border:1px solid var(--linea);border-radius:2rem;background:#fff;color:var(--tinta);font-weight:500;font-size:.9rem}
+.pill.on{background:var(--tinta);color:#fff}
+.lista{padding:1rem 1.4rem;display:grid;gap:.8rem}
+.ficha{background:#fff;border:1px solid var(--linea);border-radius:14px;padding:1rem 1.1rem}
+.ficha .alto{display:flex;justify-content:space-between;gap:1rem;align-items:flex-start}
+.ficha .nombre{font-weight:700;font-size:1.05rem}
+.mini{color:var(--gris);font-size:.85rem}
+.tag{display:inline-block;padding:.15rem .6rem;border-radius:2rem;font-size:.72rem;font-weight:700;white-space:nowrap}
+.tag.sin{background:#fdeee9;color:var(--rojo)}.tag.red{background:#fdf4e3;color:#8a6410}.tag.propia{background:#e9f4ee;color:var(--verde)}
+.acciones{display:flex;gap:.5rem;margin-top:.8rem;flex-wrap:wrap}
+.acciones a,.acciones button{font-size:.9rem;padding:.55rem .9rem;border-radius:10px;text-decoration:none;border:1px solid var(--linea);background:#fff;color:var(--tinta);font-weight:500;cursor:pointer}
+.acciones .princ{background:var(--tinta);color:#fff;border-color:var(--tinta);font-weight:700}
+.vacio{padding:2.5rem 1.4rem;color:var(--gris)}
+.error{margin:1rem 1.4rem;padding:.9rem 1rem;background:#fdeee9;color:var(--rojo);border-radius:10px;font-size:.9rem}
+dialog{border:0;border-radius:16px;padding:0;max-width:440px;width:92vw}
+dialog::backdrop{background:rgba(20,20,20,.5)}
+.modal{padding:1.4rem}
+.modal h3{font-size:1.15rem}
+.campos{display:grid;gap:.9rem;margin:1.1rem 0}
+.colores{display:flex;gap:.5rem;flex-wrap:wrap}
+.colores span{width:34px;height:34px;border-radius:50%;cursor:pointer;border:3px solid transparent}
+.colores span.on{border-color:var(--tinta)}
+.pie{display:flex;gap:.6rem;justify-content:flex-end;flex-wrap:wrap}
+.nota{padding:1rem 1.4rem;color:var(--gris);font-size:.82rem;border-top:1px solid var(--linea);margin-top:1rem}
+</style>
+</head>
+<body>
+<header><h1>Panel</h1><span>radar y maquetas</span><button class="ghost" id="ajustes" type="button" style="margin-left:auto">Clave</button></header>
+
+<form class="buscador" id="form">
+  <label>Zona<input id="zona" placeholder="La Paz, Madrid" required></label>
+  <label>Tipos de negocio, separados por comas<input id="tipos" placeholder="peluquería, bar, tienda de ropa" required></label>
+  <button id="buscar" type="submit">Buscar</button>
+</form>
+
+<div class="error" id="error" hidden></div>
+
+<div class="resumen" id="resumen" hidden>
+  <div><b id="nSin">0</b><span>sin web</span></div>
+  <div><b id="nRed">0</b><span>solo redes</span></div>
+  <div><b id="nProp">0</b><span>con web</span></div>
+  <button class="ghost" id="csv" type="button" style="margin-left:auto">CSV</button>
+</div>
+
+<div class="filtros" id="filtros" hidden>
+  <button class="pill on" data-f="sin" type="button">Sin web</button>
+  <button class="pill" data-f="red" type="button">Solo redes</button>
+  <button class="pill" data-f="propia" type="button">Con web</button>
+  <button class="pill" data-f="todo" type="button">Todos</button>
+</div>
+
+<div class="lista" id="lista"></div>
+<p class="vacio" id="vacio">Pon una zona y unos tipos de negocio, y pulsa Buscar.</p>
+
+<p class="nota">Los datos vienen de Google Places y no se guardan: viven mientras esta página esté abierta. Nada de correo ni WhatsApp en frío; llama al teléfono público del negocio o pásate.</p>
+
+<dialog id="dlgClave"><div class="modal">
+  <h3>Clave de Google Places</h3>
+  <p class="mini" style="margin-top:.4rem">Se guarda solo en este navegador. En Google Cloud, restríngela a «Places API (New)» y a este dominio.</p>
+  <div class="campos"><label>Clave<input id="clave" type="password" placeholder="AIza…"></label></div>
+  <div class="pie"><button class="ghost" type="button" data-cerrar>Cerrar</button><button type="button" id="guardarClave">Guardar</button></div>
+</div></dialog>
+
+<dialog id="dlgMaq"><div class="modal">
+  <h3 id="mqNombre"></h3><p class="mini" id="mqDir"></p>
+  <div class="campos">
+    <label>Frase de la portada<input id="lema" placeholder="El pan de cada día, desde 1978"></label>
+    <div><div class="mini" style="letter-spacing:.14em;text-transform:uppercase;margin-bottom:.4rem">Color</div><div class="colores" id="colores"></div></div>
+  </div>
+  <div class="pie"><button class="ghost" type="button" data-cerrar>Cancelar</button><button class="ghost" type="button" id="descargar">Descargar</button><button type="button" id="ver">Ver maqueta</button></div>
+</div></dialog>
+
+<script src="panel.js"></script>
+</body>
+</html>
