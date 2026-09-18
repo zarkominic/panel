@@ -90,10 +90,19 @@ dialog::backdrop{background:rgba(20,20,20,.5)}
   <h3 id="mqNombre"></h3><p class="mini" id="mqDir"></p>
   <div class="campos">
     <label>Frase de la portada<input id="lema" placeholder="El pan de cada día, desde 1978"></label>
+    <label>Molde<select id="molde">
+      <option value="cercano">Cercano · bar, panadería, barrio</option>
+      <option value="carta">Carta · restaurante, comidas</option>
+      <option value="cita">Cita · peluquería, estética, clínica</option>
+      <option value="oficio">Oficio · taller, reformas, servicios</option>
+      <option value="escaparate">Escaparate · tienda, producto</option></select></label>
     <label>Foto de portada<select id="foto">
       <option value="panaderia">Panadería</option><option value="bar">Bar</option><option value="peluqueria">Peluquería</option>
       <option value="restaurante">Restaurante</option><option value="tienda">Tienda</option><option value="ferreteria">Ferretería</option>
       <option value="taller">Taller</option><option value="generico">Genérica</option></select></label>
+    <label>Foto de detalle (carta y escaparate)<select id="detalle">
+      <option value="det_panaderia">Bollería</option><option value="det_bar">Tapas</option><option value="det_peluqueria">Peluquería</option>
+      <option value="det_restaurante">Plato</option><option value="det_taller">Taller</option><option value="det_tienda">Tienda</option></select></label>
     <label>WhatsApp (opcional, con prefijo)<input id="whatsapp" placeholder="34600000000"></label>
     <details><summary class="mini" style="cursor:pointer;letter-spacing:.14em;text-transform:uppercase">Tres motivos (opcional)</summary>
       <div style="display:grid;gap:.6rem;margin-top:.6rem">
@@ -107,6 +116,7 @@ dialog::backdrop{background:rgba(20,20,20,.5)}
   <div class="pie"><button class="ghost" type="button" data-cerrar>Cancelar</button><button class="ghost" type="button" id="descargar">Descargar</button><button type="button" id="ver">Ver maqueta</button></div>
 </div></dialog>
 
+<script src="moldes.js"></script>
 <script src="panel.js"></script>
 </body>
 </html>

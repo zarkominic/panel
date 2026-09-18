@@ -89,7 +89,10 @@ function abrirMaqueta(id){
   actual = NEGOCIOS.find(x => x.id === id);
   $("mqNombre").textContent = actual.nombre; $("mqDir").textContent = actual.direccion;
   $("lema").value = ""; $("whatsapp").value = localStorage.getItem("wa") || "";
-  $("foto").value = fotoPara(actual.tipo + " " + actual.nombre);
+  const m = moldePara(actual.tipo + " " + actual.nombre);
+  $("molde").value = m; $("foto").value = fotoPara(actual.tipo + " " + actual.nombre);
+  $("detalle").value = "det_" + ({panaderia:"panaderia",bar:"bar",peluqueria:"peluqueria",restaurante:"restaurante",taller:"taller",tienda:"tienda"}[$("foto").value] || "tienda");
+  ayudaMolde();
   $("tituloPuntos").value = ""; ["p1","p2","p3"].forEach(i => $(i).value = "");
   $("dlgMaq").showModal();
 }
@@ -101,98 +104,13 @@ function fotoPara(tipo){ const t=(tipo||"").toLowerCase();
   for (const [f, claves] of Object.entries(PISTAS)) if (claves.some(c => t.includes(c))) return f;
   return "generico"; }
 
-function html(n, o){
-  const tel = (n.telefono || "").replace(/[^0-9+]/g, "");
-  const wa = (o.whatsapp || "").replace(/[^0-9]/g, "");
-  const dias = n.horario || [];
-  const horario = dias.map(h => `<li>${h}</li>`).join("") || "<li>Pregúntanos el horario</li>";
-  const q = encodeURIComponent(n.nombre + " " + n.direccion);
-  const mapa = "https://www.google.com/maps/search/?api=1&query=" + q;
-  const embed = "https://maps.google.com/maps?q=" + q + "&z=16&output=embed";
-  const estrellas = n.valoracion ? "★".repeat(Math.round(n.valoracion)) : "";
-  const puntos = (o.puntos || []).filter(Boolean);
-  return `<!DOCTYPE html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>${n.nombre} — ${n.direccion.split(",")[0]}</title>
-<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;500;700;800&display=swap" rel="stylesheet">
-<style>:root{--a:${o.color};--t:#17171a;--g:#6f6f74;--p:#fbfaf7;--linea:rgba(23,23,26,.1)}
-*{box-sizing:border-box;margin:0;padding:0}html{scroll-behavior:smooth}
-body{font-family:Manrope,system-ui,sans-serif;background:var(--p);color:var(--t);line-height:1.55;font-size:clamp(1.05rem,.4vw + .95rem,1.2rem);padding-bottom:4.5rem;overflow-x:clip}
-a{color:inherit}
-.barra{position:fixed;top:0;left:0;right:0;z-index:9;display:flex;justify-content:space-between;align-items:center;padding:.9rem 6vw;color:#fff;font-weight:700;background:linear-gradient(180deg,rgba(0,0,0,.45),transparent)}
-.barra .n{font-size:1rem;letter-spacing:.02em}.barra a{font-size:.85rem;font-weight:500;opacity:.9;margin-left:1rem;text-decoration:none}
-.hero{position:relative;min-height:88vh;display:flex;flex-direction:column;justify-content:flex-end;padding:0 6vw 7vh;color:#fff;overflow:hidden}
-.hero img.fondo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-.hero .velo{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.35) 0%,rgba(0,0,0,.15) 35%,rgba(0,0,0,.82) 100%)}
-.hero .txt{position:relative}
-.ante{letter-spacing:.2em;text-transform:uppercase;font-size:.78rem;opacity:.85;margin-bottom:.8rem}
-h1{font-size:clamp(2rem,8vw,4.6rem);font-weight:800;line-height:1.05;letter-spacing:-.025em;overflow-wrap:break-word;hyphens:auto}
-.lema{margin-top:1rem;font-size:clamp(1.1rem,3.6vw,1.6rem);font-weight:300;opacity:.95;max-width:28ch}
-.val{display:inline-flex;align-items:center;gap:.5rem;margin-top:1.2rem;background:rgba(255,255,255,.14);backdrop-filter:blur(6px);padding:.45rem .9rem;border-radius:2rem;font-size:.9rem}
-.val b{font-weight:800}
-.acc{display:flex;flex-wrap:wrap;gap:.7rem;margin-top:2rem}
-.btn{padding:1rem 1.5rem;border-radius:2rem;font-weight:700;text-decoration:none;background:#fff;color:var(--t);display:inline-block}
-.btn.s{background:transparent;color:#fff;border:1px solid rgba(255,255,255,.6)}
-.btn.wa{background:#25d366;color:#fff}
-section{padding:8vh 6vw;border-top:1px solid var(--linea)}
-h2{font-size:clamp(1.5rem,5vw,2.2rem);font-weight:700;margin-bottom:1.2rem;letter-spacing:-.01em}
-.puntos{display:grid;gap:1.6rem;margin-top:.6rem}
-@media(min-width:760px){.puntos{grid-template-columns:repeat(3,1fr)}}
-.puntos div b{display:block;font-size:1.15rem;margin-bottom:.3rem;color:var(--a)}
-.puntos div span{color:var(--g)}
-.dos{display:grid;gap:2.4rem}@media(min-width:860px){.dos{grid-template-columns:1fr 1fr;align-items:start}}
-ul.horario{list-style:none}ul.horario li{padding:.55rem 0;border-bottom:1px solid var(--linea);color:var(--g)}
-iframe{width:100%;aspect-ratio:4/3;border:0;border-radius:14px;filter:grayscale(.15)}
-.tel{font-size:clamp(1.7rem,7vw,2.6rem);font-weight:800;color:var(--a);text-decoration:none;display:inline-block;margin-top:.4rem;letter-spacing:-.02em}
-footer{padding:2.6rem 6vw;color:var(--g);font-size:.85rem;border-top:1px solid var(--linea);display:flex;justify-content:space-between;flex-wrap:wrap;gap:.6rem}
-.fijo{position:fixed;left:0;right:0;bottom:0;z-index:9;display:flex;gap:.6rem;padding:.7rem 6vw;background:rgba(251,250,247,.94);backdrop-filter:blur(8px);border-top:1px solid var(--linea)}
-.fijo a{flex:1;text-align:center;padding:.85rem;border-radius:2rem;font-weight:700;text-decoration:none;background:var(--a);color:#fff}
-.fijo a.s{background:#fff;color:var(--t);border:1px solid var(--linea)}
-.aviso{position:fixed;top:0;left:0;right:0;z-index:20;background:#17171a;color:#fff;padding:.45rem 1rem;font-size:.75rem;text-align:center}
-.aviso + .barra{top:1.9rem}
-</style></head><body>
-<div class="aviso">Maqueta de muestra · la foto es de archivo: en tu web irían las tuyas</div>
-<div class="barra"><span class="n">${n.nombre}</span><span><a href="#donde">Dónde</a><a href="#horario">Horario</a>${tel?`<a href="tel:${tel}">Llamar</a>`:""}</span></div>
-
-<div class="hero">
-  <img class="fondo" src="img/${o.foto}.jpg" alt="">
-  <div class="velo"></div>
-  <div class="txt">
-    <p class="ante">${[n.tipo ? n.tipo[0].toUpperCase() + n.tipo.slice(1) : "", (n.direccion.split(",")[2] || "").trim().replace(/^\d{5}\s*/, "")].filter(Boolean).join(" · ")}</p>
-    <h1>${n.nombre}</h1>
-    ${o.lema ? `<p class="lema">${o.lema}</p>` : ""}
-    ${n.valoracion ? `<div class="val"><b>${n.valoracion}</b> <span>${estrellas}</span> <span style="opacity:.8">· ${n.resenas} reseñas en Google</span></div>` : ""}
-    <div class="acc">
-      ${tel ? `<a class="btn" href="tel:${tel}">Llamar ${n.telefono}</a>` : ""}
-      ${wa ? `<a class="btn wa" href="https://wa.me/${wa}" target="_blank" rel="noopener">WhatsApp</a>` : ""}
-      <a class="btn s" href="#donde">Cómo llegar</a>
-    </div>
-  </div>
-</div>
-
-${puntos.length ? `<section><h2>${o.tituloPuntos || "Por qué venir"}</h2><div class="puntos">
-  ${puntos.map(p => { const [t, ...r] = p.split("|"); return `<div><b>${t.trim()}</b><span>${(r.join("|") || "").trim()}</span></div>`; }).join("")}
-</div></section>` : ""}
-
-<section id="donde"><div class="dos">
-  <div><h2>Dónde estamos</h2><p>${n.direccion}</p>
-    <p style="margin-top:1.2rem"><a class="btn" style="background:var(--a);color:#fff" href="${mapa}" target="_blank" rel="noopener">Abrir en el mapa</a></p>
-    <div id="horario" style="margin-top:2.4rem"><h2>Horario</h2><ul class="horario">${horario}</ul></div>
-  </div>
-  <iframe loading="lazy" src="${embed}" title="Mapa"></iframe>
-</div></section>
-
-${tel ? `<section><h2>Llámanos</h2><p>Te atendemos nosotros, no una máquina.</p><a class="tel" href="tel:${tel}">${n.telefono}</a></section>` : ""}
-
-<footer><span>© ${new Date().getFullYear()} ${n.nombre}</span><span>${n.direccion}</span></footer>
-<div class="fijo">${tel ? `<a href="tel:${tel}">Llamar</a>` : ""}${wa ? `<a class="s" href="https://wa.me/${wa}" target="_blank" rel="noopener">WhatsApp</a>` : ""}<a class="s" href="${mapa}" target="_blank" rel="noopener">Cómo llegar</a></div>
-</body></html>`;
-}
-
 function opciones(){
-  return {color, foto: $("foto").value, lema: $("lema").value.trim(), whatsapp: $("whatsapp").value.trim(),
-          tituloPuntos: $("tituloPuntos").value.trim(),
-          puntos: [$("p1").value, $("p2").value, $("p3").value]};
+  return {color, molde: $("molde").value, foto: $("foto").value, detalle: $("detalle").value,
+          lema: $("lema").value.trim(), whatsapp: $("whatsapp").value.trim(),
+          tituloMotivos: $("tituloPuntos").value.trim(),
+          motivos: [$("p1").value, $("p2").value, $("p3").value]};
 }
+const html = (n, o) => MOLDES[o.molde].fn(n, o);
 $("ver").onclick = () => {
   const doc = html(actual, opciones()); $("dlgMaq").close();
   const w = window.open("", "_blank"); if (!w) return alert("El navegador ha bloqueado la ventana. Usa Descargar.");
@@ -211,3 +129,11 @@ $("csv").onclick = () => {
   const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([csv], {type: "text/csv"}));
   a.download = "radar_" + new Date().toISOString().slice(0, 10) + ".csv"; a.click();
 };
+
+/* la ayuda de los tres campos cambia según el molde: no es lo mismo un plato que un motivo */
+function ayudaMolde(){
+  const a = MOLDES[$("molde").value].ayuda;
+  ["p1","p2","p3"].forEach(i => $(i).placeholder = a);
+  $("tituloPuntos").placeholder = "Título de esa sección";
+}
+$("molde").onchange = ayudaMolde;
