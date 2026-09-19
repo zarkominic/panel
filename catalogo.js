@@ -57,3 +57,19 @@ function oportunidad(n){
   const penal = n.clase === "sin" ? 1 : n.clase === "red" ? 0.55 : 0.12;
   return Math.round(base * nota * penal);
 }
+
+/* ── ZONAS ── La Comunidad de Madrid no se puede barrer de una vez: Google devuelve
+   20 negocios por consulta. Se trocea en distritos y municipios, y se barre uno a uno. */
+const ZONAS = {
+  "Madrid · distritos": ["Centro", "Arganzuela", "Retiro", "Salamanca", "Chamartín", "Tetuán", "Chamberí",
+    "Fuencarral-El Pardo", "Moncloa-Aravaca", "Latina", "Carabanchel", "Usera", "Puente de Vallecas",
+    "Moratalaz", "Ciudad Lineal", "Hortaleza", "Villaverde", "Villa de Vallecas", "Vicálvaro",
+    "San Blas-Canillejas", "Barajas"].map(d => d + ", Madrid"),
+  "Sur": ["Móstoles", "Fuenlabrada", "Leganés", "Getafe", "Alcorcón", "Parla", "Pinto", "Valdemoro", "Aranjuez"],
+  "Este y corredor": ["Alcalá de Henares", "Torrejón de Ardoz", "Coslada", "San Fernando de Henares", "Arganda del Rey", "Rivas-Vaciamadrid"],
+  "Norte y oeste": ["Alcobendas", "San Sebastián de los Reyes", "Tres Cantos", "Colmenar Viejo", "Las Rozas",
+    "Majadahonda", "Pozuelo de Alarcón", "Boadilla del Monte", "Collado Villalba", "Villanueva de la Cañada"],
+};
+
+/* Los seis tipos que más rinden: negocios de barrio con clientes y sin web. */
+const ESENCIALES = ["bar", "restaurante", "peluquería", "panadería", "taller mecánico", "tienda de ropa"];

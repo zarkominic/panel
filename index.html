@@ -39,6 +39,13 @@ button:disabled{opacity:.5}
 .acciones a,.acciones button{font-size:.9rem;padding:.55rem .9rem;border-radius:10px;text-decoration:none;border:1px solid var(--linea);background:#fff;color:var(--tinta);font-weight:500;cursor:pointer}
 .acciones .princ{background:var(--tinta);color:#fff;border-color:var(--tinta);font-weight:700}
 .vacio{padding:2.5rem 1.4rem;color:var(--gris)}
+.zgrupo{margin-bottom:.9rem}
+.zgrupo b{display:block;font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gris);margin-bottom:.4rem}
+.zgrupo .cajas{display:flex;flex-wrap:wrap;gap:.4rem}
+.zgrupo label{display:inline-flex;flex-direction:row;align-items:center;gap:.35rem;background:#fff;border:1px solid var(--linea);border-radius:2rem;padding:.3rem .7rem;font-size:.85rem;color:var(--tinta);text-transform:none;letter-spacing:0;cursor:pointer}
+.zgrupo label:has(input:checked){background:var(--tinta);color:#fff;border-color:var(--tinta)}
+.zgrupo input{accent-color:var(--tinta)}
+.zgrupo .todos{font-size:.75rem;color:var(--gris);cursor:pointer;text-decoration:underline;margin-left:.4rem}
 .grupo{background:#fff;border:1px solid var(--linea);border-radius:14px;padding:1rem 1.1rem;margin-bottom:.9rem}
 .gcab{display:flex;justify-content:space-between;align-items:flex-start;gap:1rem}
 .gcab b{font-size:1.05rem}
@@ -69,6 +76,7 @@ dialog::backdrop{background:rgba(20,20,20,.5)}
   <div style="display:flex;gap:.6rem;flex-wrap:wrap">
     <button id="buscar" type="submit" style="flex:1">Buscar</button>
     <button id="barrer" class="ghost" type="button" style="flex:1">Barrer la zona</button>
+    <button id="barridoGrande" class="ghost" type="button" style="flex:1">Barrer Madrid…</button>
   </div>
 </form>
 
@@ -98,6 +106,19 @@ dialog::backdrop{background:rgba(20,20,20,.5)}
   <p class="mini" style="margin-top:.4rem">Se guarda solo en este navegador. En Google Cloud, restríngela a «Places API (New)» y a este dominio.</p>
   <div class="campos"><label>Clave<input id="clave" type="password" placeholder="AIza…"></label></div>
   <div class="pie"><button class="ghost" type="button" data-cerrar>Cerrar</button><button type="button" id="guardarClave">Guardar</button></div>
+</div></dialog>
+
+<dialog id="dlgZonas"><div class="modal">
+  <h3>Barrer varias zonas</h3>
+  <p class="mini" style="margin-top:.3rem">Google da 20 negocios por consulta, así que se busca zona por zona.</p>
+  <div class="campos">
+    <div><div class="mini" style="letter-spacing:.14em;text-transform:uppercase;margin-bottom:.5rem">Qué buscar</div>
+      <label style="flex-direction:row;align-items:center;gap:.5rem;color:var(--tinta)"><input type="radio" name="cuantos" value="esenciales" checked> 6 tipos esenciales</label>
+      <label style="flex-direction:row;align-items:center;gap:.5rem;color:var(--tinta);margin-top:.3rem"><input type="radio" name="cuantos" value="todos"> los 28 del catálogo</label></div>
+    <div id="listaZonas"></div>
+    <p class="mini" id="cuenta" style="padding:.7rem .9rem;background:#fff;border:1px solid var(--linea);border-radius:10px"></p>
+  </div>
+  <div class="pie"><button class="ghost" type="button" data-cerrar>Cancelar</button><button type="button" id="lanzar">Barrer</button></div>
 </div></dialog>
 
 <dialog id="dlgMaq"><div class="modal">

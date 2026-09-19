@@ -175,7 +175,7 @@ $("barrer").onclick = async () => {
   $("barrer").disabled = false; $("buscar").disabled = false; $("barrer").textContent = "Barrer la zona";
 };
 
-function pintaGrupos(){
+function pintaGrupos(porZona){
   $("resumen").hidden = $("filtros").hidden = false; $("vacio").hidden = true;
   const n = c => NEGOCIOS.filter(x => x.clase === c).length;
   $("nSin").textContent = n("sin"); $("nRed").textContent = n("red"); $("nProp").textContent = n("propia");
@@ -195,7 +195,16 @@ function pintaGrupos(){
       ${sinWeb.length > 3 ? `<div class="mini" style="margin-top:.5rem">y ${sinWeb.length - 3} más — pulsa Maquetas</div>` : ""}
     </div>`;
   }).join("");
-  $("lista").innerHTML = html || `<p class="mini">La zona no ha dado resultados.</p>`;
+  let cab = "";
+  if (porZona){
+    const zonas = [...new Set(NEGOCIOS.map(x => x.zona))].map(z => {
+      const d = NEGOCIOS.filter(x => x.zona === z), sw = d.filter(x => x.clase !== "propia");
+      return {z, total: d.length, sin: sw.length};
+    }).sort((a, b) => b.sin - a.sin);
+    cab = `<div class="grupo"><div class="gcab"><div><b>Por zona</b><div class="mini">${zonas.length} zonas · ordenadas por negocios sin web</div></div></div>
+      ${zonas.map(x => `<div class="fila"><div><b>${x.z}</b><div class="mini">${x.total} negocios</div></div><span class="tag sin">${x.sin} sin web</span></div>`).join("")}</div>`;
+  }
+  $("lista").innerHTML = cab + (html || `<p class="mini">La zona no ha dado resultados.</p>`);
   document.querySelectorAll("[data-maq]").forEach(b => b.onclick = () => abrirMaqueta(b.dataset.maq));
   document.querySelectorAll("[data-grupo]").forEach(b => b.onclick = () => maquetasDe(b.dataset.grupo));
 }
@@ -214,3 +223,56 @@ function maquetasDe(grupo){
   sessionStorage.removeItem("maqueta");
   location.href = "ver.html";
 }
+
+
+/* ══════════ BARRIDO GRANDE: varias zonas de la Comunidad de Madrid ══════════ */
+$("barridoGrande").onclick = () => {
+  if (!clave()) return $("dlgClave").showModal();
+  $("listaZonas").innerHTML = Object.entries(ZONAS).map(([g, zonas]) => `<div class="zgrupo">
+    <b>${g} <span class="todos" data-todos="${g}">marcar todas</span></b>
+    <div class="cajas">${zonas.map(z => `<label><input type="checkbox" class="zona" value="${z}"> ${z.split(",")[0]}</label>`).join("")}</div></div>`).join("");
+  document.querySelectorAll("[data-todos]").forEach(s => s.onclick = () => {
+    const cajas = [...s.closest(".zgrupo").querySelectorAll(".zona")], marcar = !cajas.every(c => c.checked);
+    cajas.forEach(c => c.checked = marcar); cuentaZonas(); });
+  document.querySelectorAll(".zona, [name=cuantos]").forEach(c => c.onchange = cuentaZonas);
+  cuentaZonas(); $("dlgZonas").showModal();
+};
+function tiposElegidos(){
+  const todos = document.querySelector("[name=cuantos]:checked").value === "todos";
+  return todos ? CATALOGO : CATALOGO.filter(([t]) => ESENCIALES.includes(t));
+}
+function cuentaZonas(){
+  const n = document.querySelectorAll(".zona:checked").length, tipos = tiposElegidos().length, consultas = n * tipos;
+  const minutos = Math.ceil(consultas * 1.4 / 60);
+  $("cuenta").innerHTML = !n ? "Elige al menos una zona." :
+    `<b>${n} zonas × ${tipos} tipos = ${consultas} consultas</b><br>Unos ${minutos} min. Tienes 1.000 consultas gratis al mes${consultas > 1000 ? " — <b style='color:var(--rojo)'>esto se pasa</b>" : ""}.`;
+  $("lanzar").disabled = !n;
+}
+$("lanzar").onclick = async () => {
+  const zonas = [...document.querySelectorAll(".zona:checked")].map(c => c.value), tipos = tiposElegidos();
+  $("dlgZonas").close(); $("error").hidden = true; $("barrer").disabled = $("barridoGrande").disabled = true;
+  const vistos = new Set(); NEGOCIOS = [];
+  const total = zonas.length * tipos.length; let hechas = 0;
+  try {
+    for (const zona of zonas){
+      for (const [tipo, molde, grupo] of tipos){
+        hechas++; $("barridoGrande").textContent = `${hechas}/${total} · ${zona.split(",")[0]}`;
+        let d; try { d = await pagina(`${tipo} en ${zona}`); } catch(e){ continue; }
+        for (const s of d.places || []){
+          if (vistos.has(s.id) || s.businessStatus === "CLOSED_PERMANENTLY") continue;
+          vistos.add(s.id);
+          const web = s.websiteUri || "";
+          const n = {id: s.id, tipo, molde, grupo, zona: zona.split(",")[0], nombre: (s.displayName || {}).text || "",
+            direccion: s.formattedAddress || "", telefono: s.nationalPhoneNumber || "", web, clase: claseWeb(web),
+            valoracion: s.rating || "", resenas: s.userRatingCount || 0, maps: s.googleMapsUri || "",
+            horario: ((s.regularOpeningHours || {}).weekdayDescriptions) || []};
+          n.puntos = oportunidad(n); NEGOCIOS.push(n);
+        }
+        await espera(200);
+      }
+    }
+    NEGOCIOS.sort((a, b) => b.puntos - a.puntos);
+    pintaGrupos(true);
+  } catch(err){ $("error").textContent = err.message; $("error").hidden = false; }
+  $("barrer").disabled = $("barridoGrande").disabled = false; $("barridoGrande").textContent = "Barrer Madrid…";
+};
